@@ -92,9 +92,14 @@
                         nextRow = lastRow + Math.floor(Math.random() * 5 + 8); // Random adjustment for first gap
                     }
 
+                    // Clamp the next row and prevent repeated rows
                     nextRow = Math.min(rows, Math.max(1, nextRow)); // Stay within bounds
+                    if (nextRow === lastRow) {
+                        nextRow = Math.min(rows, nextRow + 1); // Ensure it progresses
+                    }
                 } else {
-                    nextRow = Math.floor(Math.random() * 10 + 1); // First row if no kings
+                    // If no known kings, start near the first row
+                    nextRow = Math.floor(Math.random() * 10 + 1);
                 }
 
                 // Compute column probabilities

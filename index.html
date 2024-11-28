@@ -56,6 +56,7 @@
     <script>
         function extrapolateDwarfKings(rows, cols, knownPositions, iterations) {
             const kings = [...knownPositions];
+            const usedRows = new Set(kings.map(king => king.row)); // Track used rows
         
             for (let i = 0; i < iterations; i++) {
                 let nextRow;
@@ -71,19 +72,17 @@
                         nextRow = lastRow + Math.floor(Math.random() * 5 + 8); // Random adjustment for first gap
                     }
         
-                    // Clamp the next row and prevent repeated rows
-                    if (nextRow >= rows) {
-                        nextRow = lastRow - 2; // Move backward when stuck at the limit
-                        if (nextRow <= lastRow) {
-                            nextRow = Math.max(1, lastRow - 1); // Ensure progression
-                        }
-                    } else if (nextRow === lastRow) {
-                        nextRow = Math.min(rows, nextRow + 1); // Ensure it progresses
+                    // Ensure the row is valid and not used
+                    while (nextRow > rows || usedRows.has(nextRow)) {
+                        nextRow = Math.floor(Math.random() * rows) + 1; // Choose another row
                     }
                 } else {
                     // If no known kings, start near the first row
-                    nextRow = Math.floor(Math.random() * 10 + 1);
+                    nextRow = Math.floor(Math.random() * rows) + 1;
                 }
+        
+                // Mark the row as used
+                usedRows.add(nextRow);
         
                 // Compute column probabilities
                 const columnCounts = kings.reduce((counts, king) => {

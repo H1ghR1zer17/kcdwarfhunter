@@ -28,18 +28,6 @@
             border: 1px solid #ccc;
             background-color: #fff;
         }
-        .grid {
-            margin-top: 10px;
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-        }
-        .grid-item {
-            padding: 10px;
-            background-color: #d9e4f5;
-            border: 1px solid #bbb;
-            text-align: center;
-        }
     </style>
 </head>
 <body>
@@ -52,7 +40,10 @@
         <input type="number" id="cols" value="5" min="1" max="10" required>
         <br>
         <label for="known">Known Positions (row,column):</label>
-        <input type="text" id="known" placeholder="e.g., 45,3;62,3;9,5">
+        <input type="text" id="known" placeholder="e.g., 7,2;19,5">
+        <br>
+        <label for="iterations">Iterations:</label>
+        <input type="number" id="iterations" value="10" min="1" required>
         <br>
         <button type="button" id="extrapolate-button">Extrapolate Dwarf Kings</button>
     </form>
@@ -68,6 +59,7 @@
             const rows = parseInt(document.getElementById("rows").value);
             const cols = parseInt(document.getElementById("cols").value);
             const knownInput = document.getElementById("known").value.trim();
+            const iterations = parseInt(document.getElementById("iterations").value);
 
             // Parse known positions
             const knownPositions = knownInput ? knownInput.split(";").map(pos => {
@@ -76,48 +68,53 @@
             }) : [];
 
             // Run extrapolation
-            const results = extrapolateDwarfKings(rows, cols, knownPositions);
+            const results = extrapolateDwarfKings(rows, cols, knownPositions, iterations);
 
-            // Display results with constant letter 'F', no prefixes
+            // Display results
             const resultsDiv = document.getElementById("results");
-            resultsDiv.innerHTML = results
-                .map(pos => `${pos.row}F, ${pos.col}`)
-                .join("<br>");
+            resultsDiv.innerHTML = results.map(pos => `${pos.row}F, ${pos.col}`).join("<br>");
+        });
 
-        function extrapolateDwarfKings(rows, cols, knownPositions) {
-            const allRows = Array.from({ length: rows }, (_, i) => i + 1);
-            const knownRows = knownPositions.map(pos => pos.row);
-            const candidateRows = new Set();
+        function extrapolateDwarfKings(rows, cols, knownPositions, iterations) {
+            const kings = [...knownPositions];
 
-            // Target rows every 10 ± 2
-            for (let i = 1; i <= rows; i += 10) {
-                for (let offset = -2; offset <= 2; offset++) {
-                    const targetRow = i + offset;
-                    if (targetRow >= 1 && targetRow <= rows && !knownRows.includes(targetRow)) {
-                        candidateRows.add(targetRow);
+            for (let i = 0; i < iterations; i++) {
+                let nextRow;
+                if (kings.length > 0) {
+                    const lastKing = kings[kings.length - 1];
+                    const lastRow = lastKing.row;
+
+                    if (kings.length > 1) {
+                        const prevRow = kings[kings.length - 2].row;
+                        const rowGap = lastRow - prevRow;
+                        nextRow = lastRow + Math.max(1, Math.min(10 + rowGap, 12)); // Adjust gap
+                    } else {
+                        nextRow = lastRow + Math.floor(Math.random() * 5 + 8); // Random adjustment for first gap
                     }
+
+                    nextRow = Math.min(rows, Math.max(1, nextRow)); // Stay within bounds
+                } else {
+                    nextRow = Math.floor(Math.random() * 10 + 1); // First row if no kings
                 }
+
+                // Compute column probabilities
+                const columnCounts = kings.reduce((counts, king) => {
+                    counts[king.col] = (counts[king.col] || 0) + 1;
+                    return counts;
+                }, {});
+                const totalKnown = kings.length;
+                const columnProbs = Array.from({ length: cols }, (_, i) =>
+                    columnCounts[i + 1] ? columnCounts[i + 1] / totalKnown : 1 / cols
+                );
+
+                // Choose column based on probabilities
+                const nextCol = weightedRandomChoice(columnProbs) + 1;
+
+                // Add the new king
+                kings.push({ row: nextRow, col: nextCol });
             }
 
-            // Column probabilities based on known positions
-            const columnCounts = knownPositions.reduce((acc, pos) => {
-                acc[pos.col] = (acc[pos.col] || 0) + 1;
-                return acc;
-            }, {});
-            const totalKnown = knownPositions.length;
-            const columnProbs = Array.from({ length: cols }, (_, i) => {
-                const col = i + 1;
-                return (columnCounts[col] || 0) / totalKnown || 1 / cols;
-            });
-
-            // Extrapolate positions for candidate rows
-            const extrapolatedPositions = [...candidateRows].map(row => {
-                const col = weightedRandomChoice(columnProbs) + 1;
-                return { row, col };
-            });
-
-            // Combine known and extrapolated positions
-            return [...knownPositions, ...extrapolatedPositions].sort((a, b) => a.row - b.row);
+            return kings.sort((a, b) => a.row - b.row);
         }
 
         function weightedRandomChoice(weights) {

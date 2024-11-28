@@ -54,37 +54,56 @@
     </div>
 
     <script>
+        document.getElementById("extrapolate-button").addEventListener("click", function () {
+            const rows = parseInt(document.getElementById("rows").value);
+            const cols = parseInt(document.getElementById("cols").value);
+            const knownInput = document.getElementById("known").value.trim();
+            const iterations = parseInt(document.getElementById("iterations").value);
+
+            const knownPositions = knownInput ? knownInput.split(";").map(pos => {
+                const [row, col] = pos.split(",").map(Number);
+                return { row, col };
+            }) : [];
+
+            const results = extrapolateDwarfKings(rows, cols, knownPositions, iterations);
+
+            const resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML = results.map(pos => `${pos.row}F, ${pos.col}`).join("<br>");
+        });
+
         function extrapolateDwarfKings(rows, cols, knownPositions, iterations) {
             const kings = [...knownPositions];
-            const usedRows = new Set(kings.map(king => king.row)); // Track used rows
-        
+            const usedRows = new Set(kings.map(king => king.row)); // Track already used rows
+
             for (let i = 0; i < iterations; i++) {
                 let nextRow;
+
                 if (kings.length > 0) {
                     const lastKing = kings[kings.length - 1];
                     const lastRow = lastKing.row;
-        
+
+                    // Adjust next row dynamically
                     if (kings.length > 1) {
                         const prevRow = kings[kings.length - 2].row;
                         const rowGap = lastRow - prevRow;
                         nextRow = lastRow + Math.max(1, Math.min(10 + rowGap, 12)); // Adjust gap
                     } else {
-                        nextRow = lastRow + Math.floor(Math.random() * 5 + 8); // Random adjustment for first gap
+                        nextRow = lastRow + Math.floor(Math.random() * 5 + 8); // Random adjustment for the first gap
                     }
-        
+
                     // Ensure the row is valid and not used
                     while (nextRow > rows || usedRows.has(nextRow)) {
-                        nextRow = Math.floor(Math.random() * rows) + 1; // Choose another row
+                        nextRow = Math.floor(Math.random() * rows) + 1; // Select a random valid row
                     }
                 } else {
-                    // If no known kings, start near the first row
+                    // If no known kings, start randomly
                     nextRow = Math.floor(Math.random() * rows) + 1;
                 }
-        
+
                 // Mark the row as used
                 usedRows.add(nextRow);
-        
-                // Compute column probabilities
+
+                // Compute column probabilities based on existing data
                 const columnCounts = kings.reduce((counts, king) => {
                     counts[king.col] = (counts[king.col] || 0) + 1;
                     return counts;
@@ -93,22 +112,23 @@
                 const columnProbs = Array.from({ length: cols }, (_, i) =>
                     columnCounts[i + 1] ? columnCounts[i + 1] / totalKnown : 1 / cols
                 );
-        
-                // Choose column based on probabilities
+
+                // Choose a column based on probabilities
                 const nextCol = weightedRandomChoice(columnProbs) + 1;
-        
+
                 // Add the new king
                 kings.push({ row: nextRow, col: nextCol });
             }
-        
+
+            // Return all kings, sorted by row
             return kings.sort((a, b) => a.row - b.row);
         }
-        
+
         function weightedRandomChoice(weights) {
             const total = weights.reduce((sum, weight) => sum + weight, 0);
             const threshold = Math.random() * total;
             let sum = 0;
-        
+
             for (let i = 0; i < weights.length; i++) {
                 sum += weights[i];
                 if (sum >= threshold) {
@@ -117,7 +137,6 @@
             }
             return weights.length - 1; // Fallback to the last index
         }
-
     </script>
 </body>
 </html>

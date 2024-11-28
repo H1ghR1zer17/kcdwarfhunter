@@ -54,36 +54,15 @@
     </div>
 
     <script>
-        document.getElementById("extrapolate-button").addEventListener("click", function () {
-            // Get inputs
-            const rows = parseInt(document.getElementById("rows").value);
-            const cols = parseInt(document.getElementById("cols").value);
-            const knownInput = document.getElementById("known").value.trim();
-            const iterations = parseInt(document.getElementById("iterations").value);
-
-            // Parse known positions
-            const knownPositions = knownInput ? knownInput.split(";").map(pos => {
-                const [row, col] = pos.split(",").map(Number);
-                return { row, col };
-            }) : [];
-
-            // Run extrapolation
-            const results = extrapolateDwarfKings(rows, cols, knownPositions, iterations);
-
-            // Display results
-            const resultsDiv = document.getElementById("results");
-            resultsDiv.innerHTML = results.map(pos => `${pos.row}F, ${pos.col}`).join("<br>");
-        });
-
         function extrapolateDwarfKings(rows, cols, knownPositions, iterations) {
             const kings = [...knownPositions];
-
+        
             for (let i = 0; i < iterations; i++) {
                 let nextRow;
                 if (kings.length > 0) {
                     const lastKing = kings[kings.length - 1];
                     const lastRow = lastKing.row;
-
+        
                     if (kings.length > 1) {
                         const prevRow = kings[kings.length - 2].row;
                         const rowGap = lastRow - prevRow;
@@ -91,17 +70,21 @@
                     } else {
                         nextRow = lastRow + Math.floor(Math.random() * 5 + 8); // Random adjustment for first gap
                     }
-
+        
                     // Clamp the next row and prevent repeated rows
-                    nextRow = Math.min(rows, Math.max(1, nextRow)); // Stay within bounds
-                    if (nextRow === lastRow) {
+                    if (nextRow >= rows) {
+                        nextRow = lastRow - 2; // Move backward when stuck at the limit
+                        if (nextRow <= lastRow) {
+                            nextRow = Math.max(1, lastRow - 1); // Ensure progression
+                        }
+                    } else if (nextRow === lastRow) {
                         nextRow = Math.min(rows, nextRow + 1); // Ensure it progresses
                     }
                 } else {
                     // If no known kings, start near the first row
                     nextRow = Math.floor(Math.random() * 10 + 1);
                 }
-
+        
                 // Compute column probabilities
                 const columnCounts = kings.reduce((counts, king) => {
                     counts[king.col] = (counts[king.col] || 0) + 1;
@@ -111,22 +94,22 @@
                 const columnProbs = Array.from({ length: cols }, (_, i) =>
                     columnCounts[i + 1] ? columnCounts[i + 1] / totalKnown : 1 / cols
                 );
-
+        
                 // Choose column based on probabilities
                 const nextCol = weightedRandomChoice(columnProbs) + 1;
-
+        
                 // Add the new king
                 kings.push({ row: nextRow, col: nextCol });
             }
-
+        
             return kings.sort((a, b) => a.row - b.row);
         }
-
+        
         function weightedRandomChoice(weights) {
             const total = weights.reduce((sum, weight) => sum + weight, 0);
             const threshold = Math.random() * total;
             let sum = 0;
-
+        
             for (let i = 0; i < weights.length; i++) {
                 sum += weights[i];
                 if (sum >= threshold) {
@@ -135,6 +118,7 @@
             }
             return weights.length - 1; // Fallback to the last index
         }
+
     </script>
 </body>
 </html>

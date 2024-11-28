@@ -78,10 +78,11 @@
             // Run extrapolation
             const results = extrapolateDwarfKings(rows, cols, knownPositions);
 
-            // Display results
+            // Display results with constant letter 'F', no prefixes
             const resultsDiv = document.getElementById("results");
-            resultsDiv.innerHTML = results.map(pos => ` ${pos.row}F, ${pos.col}`).join("<br>");
-        });
+            resultsDiv.innerHTML = results
+                .map(pos => `${pos.row}F, ${pos.col}`)
+                .join("<br>");
 
         function extrapolateDwarfKings(rows, cols, knownPositions) {
             const allRows = Array.from({ length: rows }, (_, i) => i + 1);

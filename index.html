@@ -80,7 +80,7 @@
 
             // Display results
             const resultsDiv = document.getElementById("results");
-            resultsDiv.innerHTML = results.map(pos => `Row: ${pos.row}, Col: ${pos.col}`).join("<br>");
+            resultsDiv.innerHTML = results.map(pos => ` ${pos.row}F, ${pos.col}`).join("<br>");
         });
 
         function extrapolateDwarfKings(rows, cols, knownPositions) {

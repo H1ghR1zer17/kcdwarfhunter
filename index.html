@@ -40,7 +40,7 @@
         <input type="number" id="cols" value="5" min="1" max="10" required>
         <br>
         <label for="known">Known Positions (row,column):</label>
-        <input type="text" id="known" placeholder="e.g., 7,2;19,5">
+        <input type="text" id="known" placeholder="e.g., [7,2],[19,5]">
         <br>
         <label for="iterations">Iterations:</label>
         <input type="number" id="iterations" value="10" min="1" required>
@@ -60,10 +60,16 @@
             const knownInput = document.getElementById("known").value.trim();
             const iterations = parseInt(document.getElementById("iterations").value);
 
-            const knownPositions = knownInput ? knownInput.split(";").map(pos => {
-                const [row, col] = pos.split(",").map(Number);
-                return { row, col };
-            }) : [];
+ //           const knownPositions = knownInput ? knownInput.split(";").map(pos => {
+ //               const [row, col] = pos.split(",").map(Number);
+ //               return { row, col };
+ //           }) : [];
+
+            const knownPositions = knownInput
+                ? [...knownInput.matchAll(/\[(\d+),\s*(\d+)\]/g)].map(match => {
+                    return { row: parseInt(match[1]), col: parseInt(match[2]) };
+                })
+                : [];
 
             const results = extrapolateDwarfKings(rows, cols, knownPositions, iterations);
 

@@ -276,15 +276,7 @@ function App() {
                 min="10"
                 max="200"
               />
-
-              <label>Columns (Width)</label>
-              <input
-                type="number"
-                value={maxCols}
-                onChange={(e) => setMaxCols(parseInt(e.target.value) || 5)}
-                min="1"
-                max="10"
-              />
+              <p className="help-text">Maximum floor depth for predictions</p>
             </div>
 
             <div className="panel" style={{ marginTop: '20px' }}>

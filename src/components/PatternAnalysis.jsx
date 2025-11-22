@@ -22,7 +22,7 @@ export function PatternAnalysis({ stats, pattern, knownPositions, intervalPredic
         <strong style={{ color: '#d4af37' }}>Column Pattern:</strong>
         <div style={{ marginTop: '10px', color: '#b8860b' }}>
           {useRandomColumns
-            ? 'Using random column generation (1-5)'
+            ? 'Using column generation (1-5)'
             : pattern.description}
         </div>
         <div className="pattern-viz">

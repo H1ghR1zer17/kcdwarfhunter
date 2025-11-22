@@ -25,3 +25,7 @@ dist-ssr
 
 # Backup files
 index.html.backup
+
+# Environment variables
+.env
+.env.local

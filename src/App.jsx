@@ -342,15 +342,8 @@ function App() {
                   ))
                 )}
               </div>
-              <button onClick={clearPositions} className="secondary">
-                Clear All
-              </button>
-            </div>
 
-            <div className="panel" style={{ marginTop: '20px' }}>
-              <div className="panel-title">🔮 Oracle Settings</div>
-
-              <label>Column Prediction Method</label>
+              <label style={{ marginTop: '20px' }}>Column Prediction Method</label>
               <div className="radio-group">
                 <label className="radio-label">
                   <input
@@ -395,6 +388,10 @@ function App() {
                 }}
               >
                 🎯 Invoke Oracle
+              </button>
+
+              <button onClick={clearPositions} className="secondary">
+                Clear All
               </button>
             </div>
 

@@ -9,10 +9,24 @@ body {
   background: #1a1410;
   background-image:
     radial-gradient(ellipse at 50% 30%, rgba(40,35,30,0.6) 0%, transparent 70%),
-    url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80"><rect fill="%231a1410" width="120" height="80"/><g fill="%23231812"><rect x="0" y="0" width="60" height="30" rx="2"/><rect x="60" y="0" width="60" height="30" rx="2"/><rect x="-30" y="30" width="60" height="30" rx="2"/><rect x="30" y="30" width="60" height="30" rx="2"/><rect x="90" y="30" width="60" height="30" rx="2"/><rect x="0" y="60" width="60" height="30" rx="2"/><rect x="60" y="60" width="60" height="30" rx="2"/></g><g fill="%23000000" opacity="0.35"><rect x="0" y="29" width="120" height="2"/><rect x="0" y="59" width="120" height="2"/><rect x="0" y="0" width="120" height="2"/></g><g fill="%23ffffff" opacity="0.04"><rect x="-1" y="31" width="122" height="2"/><rect x="-1" y="61" width="122" height="2"/></g></svg>');
-  background-size: auto, 120px 80px;
-  background-position: center, 0 0;
-  background-repeat: no-repeat, repeat;
+    repeating-linear-gradient(0deg, #00000055 0 2px, transparent 2px 40px),
+    repeating-linear-gradient(90deg, #00000055 0 2px, transparent 2px 80px),
+    repeating-linear-gradient(90deg, #00000055 0 2px, transparent 2px 80px);
+  background-size:
+    auto,
+    100% 40px,
+    80px 80px,
+    80px 80px;
+  background-position:
+    center,
+    0 0,
+    0 0,
+    40px 40px;
+  background-repeat:
+    no-repeat,
+    repeat,
+    repeat,
+    repeat;
   color: #c9b896;
   min-height: 100vh;
   padding: 20px;

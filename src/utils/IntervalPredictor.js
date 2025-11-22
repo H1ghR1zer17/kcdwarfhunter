@@ -1,7 +1,8 @@
 // Row interval prediction
 export class IntervalPredictor {
   constructor(positions) {
-    this.positions = positions;
+    // Always work with rows sorted ascending to keep interval math stable
+    this.positions = [...positions].sort((a, b) => a.row - b.row);
     this.intervals = this.calculateIntervals();
   }
 
@@ -45,8 +46,36 @@ export class IntervalPredictor {
   }
 
   predictNextRow(usedRows, maxRows) {
-    if (this.intervals.length === 0) {
-      return Math.floor(Math.random() * 20) + 1;
+    // With no history, scatter a reasonable guess inside the first 20 rows
+    if (this.intervals.length === 0) return Math.floor(Math.random() * 20) + 1;
+
+    const sortedRows = this.positions.map(p => p.row).sort((a, b) => a - b);
+    const typicalInterval = this.estimateTypicalInterval(maxRows);
+
+    // Fill interior gaps first (pick the largest gap available)
+    const gaps = [];
+    for (let i = 0; i < sortedRows.length - 1; i++) {
+      const start = sortedRows[i];
+      const end = sortedRows[i + 1];
+      const gap = end - start - 1;
+      if (gap > 0) gaps.push({ start, end, gap });
+    }
+
+    gaps.sort((a, b) => b.gap - a.gap);
+
+    for (const { start, end, gap } of gaps) {
+      // Aim near the middle but respect a typical interval so we add more than one over time
+      let candidate = start + Math.max(1, Math.min(Math.floor(gap / 2), typicalInterval));
+      while (candidate < end && usedRows.has(candidate)) candidate++;
+      if (candidate < end) return candidate;
+    }
+
+    // If there is room before the first known row, try to backfill
+    const firstRow = sortedRows[0];
+    if (firstRow - 1 >= typicalInterval) {
+      let candidate = Math.max(1, firstRow - typicalInterval);
+      while (candidate < firstRow && usedRows.has(candidate)) candidate++;
+      if (candidate < firstRow) return candidate;
     }
 
     // Check for Fibonacci pattern first
@@ -61,7 +90,7 @@ export class IntervalPredictor {
       nextInterval = sorted[Math.floor(sorted.length / 2)];
     }
 
-    const lastRow = this.positions[this.positions.length - 1].row;
+    const lastRow = sortedRows[sortedRows.length - 1];
     let nextRow = lastRow + nextInterval;
 
     if (nextRow > maxRows || usedRows.has(nextRow)) {
@@ -74,6 +103,16 @@ export class IntervalPredictor {
     }
 
     return nextRow;
+  }
+
+  estimateTypicalInterval(maxRows) {
+    if (this.intervals.length === 0) return Math.max(2, Math.round(maxRows / 10));
+
+    const sorted = [...this.intervals].sort((a, b) => a - b);
+    const median = sorted[Math.floor(sorted.length / 2)];
+    // Encourage filling by capping with a density-based interval
+    const densityTarget = Math.max(2, Math.round(maxRows / Math.max(this.positions.length + 4, 6)));
+    return Math.max(2, Math.min(median, densityTarget));
   }
 
   getStats() {

@@ -8,8 +8,13 @@ body {
   font-family: 'Cinzel', serif;
   background: #1a1410;
   background-image:
-    radial-gradient(ellipse at 50% 30%, rgba(40,35,30,0.8) 0%, transparent 70%),
-    url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="100"><rect fill="%23151210" width="200" height="100"/><rect fill="%231a1612" x="3" y="3" width="94" height="44" rx="1"/><rect fill="%231a1612" x="103" y="3" width="94" height="44" rx="1"/><rect fill="%231a1612" x="3" y="53" width="94" height="44" rx="1"/><rect fill="%231a1612" x="103" y="53" width="94" height="44" rx="1"/><rect fill="%23000" x="0" y="0" width="200" height="4" opacity="0.8"/><rect fill="%23000" x="0" y="50" width="200" height="4" opacity="0.8"/><rect fill="%23000" x="100" y="0" width="4" height="100" opacity="0.7"/></svg>');
+    linear-gradient(90deg, #201712 0 78px, transparent 78px 160px),
+    linear-gradient(90deg, #201712 0 78px, transparent 78px 160px),
+    linear-gradient(#00000055 0 2px, transparent 2px 40px),
+    radial-gradient(ellipse at 50% 30%, rgba(40,35,30,0.6) 0%, transparent 70%);
+  background-size: 160px 80px, 160px 80px, 160px 40px, auto;
+  background-position: 0 0, 80px 40px, 0 0, center;
+  background-repeat: repeat;
   color: #c9b896;
   min-height: 100vh;
   padding: 20px;

@@ -11,12 +11,16 @@ export function DungeonGrid({ knownPositions, predictions, maxCols }) {
     );
   }
 
-  // Create grid with only relevant rows
-  const allRows = new Set([
-    ...knownPositions.map(p => p.row),
-    ...predictions.map(p => p.row)
-  ]);
-  const sortedRows = Array.from(allRows).sort((a, b) => a - b);
+  // Create grid with all rows in range for spatial awareness
+  const allPositions = [...knownPositions, ...predictions];
+  const minRow = Math.min(...allPositions.map(p => p.row));
+  const maxRow = Math.max(...allPositions.map(p => p.row));
+
+  // Show all rows from min to max for spatial awareness
+  const sortedRows = [];
+  for (let i = minRow; i <= maxRow; i++) {
+    sortedRows.push(i);
+  }
 
   return (
     <div className="dungeon-grid">
